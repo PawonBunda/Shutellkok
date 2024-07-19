@@ -1,14 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Match Recording</title>
+    <title>Jadwal Pertandingan Badminton</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Admin Login Section -->
-    <div id="admin-login" class="admin-login">
+    <div id="header-container"></div>
+    <h1>Jadwal Pertandingan Badminton dan Point</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Tim A</th>
+                <th>Tim B</th>
+                <th>Tanggal</th>
+                <th>Skor</th>
+                <th>Menang</th>
+                <th class="admin-only">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="match-schedule">
+            <!-- Jadwal pertandingan akan diisi di sini -->
+        </tbody>
+    </table>
+
+    <h2>Tabel Poin</h2>
+    <table id="point-table">
+        <thead>
+            <tr>
+                <th>Tim</th>
+                <th>Point</th>
+                <th class="admin-only">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="team-standings">
+            <!-- Tabel point dan status akan diisi di sini -->
+        </tbody>
+    </table>
+
+    <form id="match-form" class="admin-only">
+        <label for="teamA">Tim A:</label>
+        <select id="teamA" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="teamB">Tim B:</label>
+        <select id="teamB" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="date">Tanggal:</label>
+        <input type="date" id="date" required>
+        <button type="submit">Tambah Pertandingan</button>
+    </form>
+
+    <div id="admin-login">
         <h2>Admin Login</h2>
         <form id="login-form">
             <label for="admin-password">Password:</label>
@@ -16,85 +89,18 @@
             <button type="submit">Login</button>
         </form>
     </div>
-
-    <!-- Logout Button -->
-    <button id="logout-button" style="display:none;">Logout</button>
-
-    <!-- Match Form (Admin Only) -->
-    <div class="admin-only" style="display:none;">
-        <h2>Tambah Jadwal Pertandingan</h2>
-        <form id="match-form">
-            <label for="teamA">Tim A:</label>
-            <select id="teamA">
-                <!-- Options will be dynamically added here -->
-            </select>
-            <label for="teamB">Tim B:</label>
-            <select id="teamB">
-                <!-- Options will be dynamically added here -->
-            </select>
-            <label for="date">Tanggal:</label>
-            <input type="date" id="date" required>
-            <button type="submit">Tambahkan Jadwal</button>
-        </form>
-    </div>
-
-    <!-- Match Schedule Table -->
-    <h2>Jadwal Pertandingan</h2>
-    <table id="match-schedule">
-        <thead>
-            <tr>
-                <th>Tim A</th>
-                <th>Tim B</th>
-                <th>Tanggal</th>
-                <th>Skor</th>
-                <th>Pemenang</th>
-                <th class="admin-only" style="display:none;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically added here -->
-        </tbody>
-    </table>
-
-    <!-- Team Standings Table -->
-    <h2>Klasemen Tim</h2>
-    <table id="team-standings">
-        <thead>
-            <tr>
-                <th>Tim</th>
-                <th>Poin</th>
-                <th class="admin-only" style="display:none;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically added here -->
-        </tbody>
-    </table>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js"></script>
-
-    <!-- Firebase Config -->
-    <script>
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKgWd-2POsEJVgixJEPsvfz7hGjHyxSgo",
-            authDomain: "pbcup006.firebaseapp.com",
-            projectId: "pbcup006",
-            storageBucket: "pbcup006.appspot.com",
-            messagingSenderId: "139943219655",
-            appId: "1:139943219655:web:b81a5c1235ee9c5aee09e2",
-            measurementId: "G-84X37DL6C6"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
-    </script>
-
-    <!-- Custom Script -->
+    
+    <button id="logout-button" style="display: none;">Logout</button>
+    
     <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
+                });
+        });
+    </script>
 </body>
 </html>
