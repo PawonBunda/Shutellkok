@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const matchForm = document.getElementById('match-form');
-    const matchSchedule = document.getElementById('match-schedule').querySelector('tbody');
-    const teamStandings = document.getElementById('team-standings').querySelector('tbody');
+    const matchSchedule = document.getElementById('match-schedule');
+    const teamStandings = document.getElementById('team-standings');
     const loginForm = document.getElementById('login-form');
     const adminLoginDiv = document.getElementById('admin-login');
     const logoutButton = document.getElementById('logout-button');
     const adminOnlyElements = document.querySelectorAll('.admin-only');
-    const teamOptions = [
+
+    const teams = [
         "RT19 T1", "RT19 T2", "RT19 T3",
         "RT20 T1", "RT20 T2", "RT20 T3",
         "RT21 T1", "RT21 T2", "RT21 T3",
@@ -14,213 +15,209 @@ document.addEventListener('DOMContentLoaded', () => {
         "RT23 T1", "RT23 T2", "RT23 T3"
     ];
 
-    const db = firebase.database();
-    const matchesRef = db.ref('matches');
-    const standingsRef = db.ref('standings');
-
-    // Initialize teams in dropdowns
-    const populateTeams = () => {
-        const teamSelects = document.querySelectorAll('#teamA, #teamB');
-        teamSelects.forEach(select => {
-            teamOptions.forEach(team => {
-                const option = document.createElement('option');
-                option.value = team;
-                option.textContent = team;
-                select.appendChild(option);
-            });
-        });
-    };
-
     const initializeStandings = () => {
-        const standings = {};
-        teamOptions.forEach(team => {
+        let standings = {};
+        teams.forEach(team => {
             standings[team] = { points: 0 };
         });
-        standingsRef.set(standings);
+        localStorage.setItem('standings', JSON.stringify(standings));
+        return standings;
     };
 
     const loadStandings = (isAdmin) => {
-        standingsRef.once('value').then(snapshot => {
-            let standings = snapshot.val();
-            if (!standings) {
-                initializeStandings();
-                standings = snapshot.val();
-            }
+        let standings = JSON.parse(localStorage.getItem('standings'));
+        if (!standings) {
+            standings = initializeStandings();
+        }
+        // Sort standings by points in descending order
+        const sortedTeams = Object.keys(standings).sort((a, b) => standings[b].points - standings[a].points);
 
-            const sortedTeams = Object.keys(standings).sort((a, b) => standings[b].points - standings[a].points);
-
-            teamStandings.innerHTML = '';
-            sortedTeams.forEach(team => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${team}</td>
-                    <td>${standings[team].points || 0}</td>
-                    ${isAdmin ? `
-                    <td>
-                        <button onclick="win('${team}')">Win</button>
-                        <button onclick="winWO('${team}')">Win WO</button>
-                        <button onclick="addPoint('${team}')">+</button>
-                        <button onclick="subtractPoint('${team}')">-</button>
-                        <button onclick="resetPoints('${team}')">Reset Skor</button>
-                    </td>` : ''}
-                `;
-                teamStandings.appendChild(row);
-            });
+        teamStandings.innerHTML = '';
+        sortedTeams.forEach(team => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${team}</td>
+                <td>${standings[team]?.points || 0}</td>
+                ${isAdmin ? `
+                <td>
+                    <button onclick="win('${team}')">Win</button>
+                    <button onclick="winWO('${team}')">Win WO</button>
+                    <button onclick="addPoint('${team}')">+</button>
+                    <button onclick="subtractPoint('${team}')">-</button>
+                    <button onclick="resetPoints('${team}')">Reset Skor</button>
+                </td>` : ''}
+            `;
+            teamStandings.appendChild(row);
         });
     };
 
     const updateStandings = (team, points) => {
-        standingsRef.once('value').then(snapshot => {
-            let standings = snapshot.val();
-            if (!standings) {
-                initializeStandings();
-                standings = snapshot.val();
-            }
-            if (standings[team]) {
-                standings[team].points += points;
-                standingsRef.set(standings);
-                loadStandings(isAdmin());
-            }
-        });
-    };
-
-    const loadMatches = (isAdmin) => {
-        matchesRef.once('value').then(snapshot => {
-            const matches = snapshot.val() || [];
-            const sortedMatches = Object.keys(matches).map(key => matches[key]).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            matchSchedule.innerHTML = '';
-            sortedMatches.forEach((match, index) => {
-                const score = match.score ? `${match.score.teamA} - ${match.score.teamB}` : 'N/A';
-                const winner = match.winner || 'N/A';
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${match.teamA}</td>
-                    <td>${match.teamB}</td>
-                    <td>${match.date}</td>
-                    <td>${score}</td>
-                    <td>${winner}</td>
-                    ${isAdmin ? `
-                    <td>
-                        <button onclick="editMatch('${index}')">Edit</button>
-                        <button onclick="deleteMatch('${index}')">Delete</button>
-                        <button onclick="setWO('${index}')">Set WO</button>
-                    </td>` : ''}
-                `;
-                matchSchedule.appendChild(row);
-            });
-        });
-    };
-
-    const isAdmin = () => {
-        return localStorage.getItem('adminLoggedIn') === 'true';
-    };
-
-    const loginAdmin = (password) => {
-        if (password === 'admin123') {
-            localStorage.setItem('adminLoggedIn', 'true');
-            toggleAdminUI(true);
-        } else {
-            alert('Password salah!');
+        const standings = JSON.parse(localStorage.getItem('standings')) || initializeStandings();
+        if (standings[team]) {
+            standings[team].points += points;
+            localStorage.setItem('standings', JSON.stringify(standings));
+            loadStandings(isAdmin());
         }
     };
 
-    const logoutAdmin = () => {
-        localStorage.removeItem('adminLoggedIn');
-        toggleAdminUI(false);
+    const loadMatches = (isAdmin) => {
+        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+        // Sort matches by date in descending order
+        matches.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        matchSchedule.innerHTML = '';
+        matches.forEach((match, index) => {
+            const scoreA = match.score?.teamA || 0;
+            const scoreB = match.score?.teamB || 0;
+            const winner = match.winner ? match.winner : 'N/A';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${match.teamA}</td>
+                <td>${match.teamB}</td>
+                <td>${match.date}</td>
+                <td>${match.isWO ? 'WO' : `${scoreA} - ${scoreB}`}</td>
+                <td>${winner}</td>
+                ${isAdmin ? `
+                <td>
+                    <button onclick="deleteMatch(${index})">Hapus</button>
+                    <button onclick="editMatch(${index})">Edit Skor</button>
+                    <button onclick="setWO(${index}, '${match.teamA}')">Set WO Tim A</button>
+                    <button onclick="setWO(${index}, '${match.teamB}')">Set WO Tim B</button>
+                    <button onclick="resetMatchScore(${index})">Reset Skor</button>
+                </td>` : ''}
+            `;
+            matchSchedule.appendChild(row);
+        });
     };
 
-    const toggleAdminUI = (isAdmin) => {
-        document.getElementById('admin-login').style.display = isAdmin ? 'none' : 'block';
-        document.getElementById('logout-button').style.display = isAdmin ? 'block' : 'none';
-        adminOnlyElements.forEach(element => element.style.display = isAdmin ? 'table-cell' : 'none');
-        loadMatches(isAdmin);
-        loadStandings(isAdmin);
+    window.deleteMatch = function (index) {
+        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+        matches.splice(index, 1);
+        localStorage.setItem('matches', JSON.stringify(matches));
+        loadMatches(isAdmin());
     };
+
+    window.editMatch = function (index) {
+        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+        const match = matches[index];
+        const newScoreA = prompt(`Masukkan skor baru untuk ${match.teamA}:`, match.score.teamA);
+        const newScoreB = prompt(`Masukkan skor baru untuk ${match.teamB}:`, match.score.teamB);
+
+        if (newScoreA !== null && newScoreB !== null) {
+            match.score.teamA = parseInt(newScoreA);
+            match.score.teamB = parseInt(newScoreB);
+            match.winner = match.score.teamA > match.score.teamB ? match.teamA : (match.score.teamB > match.score.teamA ? match.teamB : null);
+
+            localStorage.setItem('matches', JSON.stringify(matches));
+            loadMatches(isAdmin());
+        }
+    };
+
+    window.setWO = function (index, team) {
+        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+        const match = matches[index];
+        
+        match.isWO = true;
+        match.winner = team;
+
+        // Remove automatic update of standings here
+        // updateStandings(match.winner, 1); // Remove this line
+
+        localStorage.setItem('matches', JSON.stringify(matches));
+        loadMatches(isAdmin());
+    };
+
+    window.win = function (team) {
+        updateStandings(team, 3);
+    };
+
+    window.winWO = function (team) {
+        updateStandings(team, 1);
+    };
+
+    window.addPoint = function (team) {
+        updateStandings(team, 3);
+    };
+
+    window.subtractPoint = function (team) {
+        updateStandings(team, -1);
+    };
+
+    window.resetPoints = function (team) {
+        const standings = JSON.parse(localStorage.getItem('standings')) || initializeStandings();
+        if (standings[team]) {
+            standings[team].points = 0;
+            localStorage.setItem('standings', JSON.stringify(standings));
+            loadStandings(isAdmin());
+        }
+    };
+
+    window.resetMatchScore = function (index) {
+        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+        const match = matches[index];
+        if (match) {
+            match.score.teamA = 0;
+            match.score.teamB = 0;
+            match.winner = null;
+            match.isWO = false;
+            localStorage.setItem('matches', JSON.stringify(matches));
+            loadMatches(isAdmin());
+        }
+    };
+
+    matchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!isAdmin()) {
+            alert('Hanya admin yang dapat menambahkan pertandingan!');
+            return;
+        }
+        const teamA = document.getElementById('teamA').value;
+        const teamB = document.getElementById('teamB').value;
+        const date = document.getElementById('date').value;
+        const match = { teamA, teamB, date, score: { teamA: 0, teamB: 0 }, winner: null, isWO: false };
+
+        let matches = JSON.parse(localStorage.getItem('matches')) || [];
+        matches.push(match);
+        localStorage.setItem('matches', JSON.stringify(matches));
+
+        loadMatches(isAdmin());
+        matchForm.reset();
+    });
 
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const password = document.getElementById('admin-password').value;
-        loginAdmin(password);
+        if (password === 'admin123') {
+            localStorage.setItem('isAdmin', 'true');
+            adminLoginDiv.style.display = 'none';
+            logoutButton.style.display = 'block';
+            adminOnlyElements.forEach(el => el.style.display = 'table-cell'); // Show admin elements
+            loadMatches(true);
+            loadStandings(true);
+        } else {
+            alert('Password salah!');
+        }
     });
 
-    logoutButton.addEventListener('click', logoutAdmin);
-
-    matchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const teamA = document.getElementById('teamA').value;
-        const teamB = document.getElementById('teamB').value;
-        const date = document.getElementById('date').value;
-
-        const newMatchRef = matchesRef.push();
-        newMatchRef.set({
-            teamA: teamA,
-            teamB: teamB,
-            date: date,
-            score: { teamA: 0, teamB: 0 },
-            winner: null
-        });
-
-        document.getElementById('teamA').value = '';
-        document.getElementById('teamB').value = '';
-        document.getElementById('date').value = '';
+    logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('isAdmin');
+        adminLoginDiv.style.display = 'block';
+        logoutButton.style.display = 'none';
+        adminOnlyElements.forEach(el => el.style.display = 'none'); // Hide admin elements
+        loadMatches(false);
+        loadStandings(false);
     });
 
-    window.win = (team) => {
-        updateStandings(team, 3);
+    const isAdmin = () => {
+        return localStorage.getItem('isAdmin') === 'true';
     };
 
-    window.winWO = (team) => {
-        updateStandings(team, 1);
-    };
+    // Hide admin elements initially if not logged in
+    if (!isAdmin()) {
+        adminOnlyElements.forEach(el => el.style.display = 'none');
+    }
 
-    window.addPoint = (team) => {
-        updateStandings(team, 1);
-    };
-
-    window.subtractPoint = (team) => {
-        updateStandings(team, -1);
-    };
-
-    window.resetPoints = (team) => {
-        standingsRef.once('value').then(snapshot => {
-            let standings = snapshot.val();
-            if (standings && standings[team]) {
-                standings[team].points = 0;
-                standingsRef.set(standings);
-                loadStandings(isAdmin());
-            }
-        });
-    };
-
-    window.editMatch = (index) => {
-        // Function to edit match details
-        alert('Edit match functionality is not yet implemented.');
-    };
-
-    window.deleteMatch = (index) => {
-        matchesRef.once('value').then(snapshot => {
-            const matches = snapshot.val();
-            if (matches) {
-                const matchKey = Object.keys(matches)[index];
-                matchesRef.child(matchKey).remove();
-            }
-        });
-    };
-
-    window.setWO = (index) => {
-        matchesRef.once('value').then(snapshot => {
-            const matches = snapshot.val();
-            if (matches) {
-                const matchKey = Object.keys(matches)[index];
-                const match = matches[matchKey];
-                match.isWO = true;
-                match.winner = match.teamA; // Assuming teamA as the winner for WO
-                matchesRef.child(matchKey).set(match);
-            }
-        });
-    };
-
-    populateTeams();
-    toggleAdminUI(isAdmin());
+    loadMatches(isAdmin());
+    loadStandings(isAdmin());
 });
