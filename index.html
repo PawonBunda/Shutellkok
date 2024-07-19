@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Pertandingan Badminton</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <h1>Jadwal Pertandingan Badminton dan Point</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Tim A</th>
+                <th>Tim B</th>
+                <th>Tanggal</th>
+                <th>Skor</th>
+                <th>Menang</th>
+                <th class="admin-only">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="match-schedule">
+            <!-- Jadwal pertandingan akan diisi di sini -->
+        </tbody>
+    </table>
+
+    <h2>Tabel Poin dan Status</h2>
+    <table id="point-table">
+        <thead>
+            <tr>
+                <th>Tim</th>
+                <th>Point</th>
+                <th class="admin-only">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="team-standings">
+            <!-- Tabel point dan status akan diisi di sini -->
+        </tbody>
+    </table>
+
+    <form id="match-form" class="admin-only">
+        <label for="teamA">Tim A:</label>
+        <select id="teamA" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="teamB">Tim B:</label>
+        <select id="teamB" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="date">Tanggal:</label>
+        <input type="date" id="date" required>
+        <button type="submit">Tambah Pertandingan</button>
+    </form>
+
+    <div id="admin-login">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    
+    <button id="logout-button" style="display: none;">Logout</button>
+    
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
+                });
+        });
+    </script>
+</body>
+</html>

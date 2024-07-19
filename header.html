@@ -1,0 +1,73 @@
+<!-- header.html -->
+<div class="custom-header">
+    <div class="logo-left">
+        <img src="pbnavi.png" alt="Logo Kiri">
+    </div>
+    <div class="title">
+        <h1>PB CUP RW006</h1>
+        <p>Perumahan Griya Artha Rancabango RW006</p>
+    </div>
+    <div class="logo-right">
+        <img src="grab006.png" alt="Logo Kanan">
+    </div>
+</div>
+
+<style>
+    /* CSS khusus untuk header */
+    .custom-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #007bff; /* Warna yang konsisten dengan index.css */
+        color: #ffffff;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-header img {
+        height: 40px; /* Sesuaikan dengan ukuran logo di index.css */
+    }
+
+    .custom-header .logo-left img {
+        height: 60px; /* Ukuran lebih besar untuk logo kiri */
+    }
+
+    .custom-header .title {
+        text-align: center;
+        margin: 0 10px;
+        flex-grow: 1;
+    }
+
+    .custom-header .title h1 {
+        margin: 0;
+        font-size: 18px; /* Ukuran font konsisten dengan index.css */
+        font-weight: bold;
+        color: #ffffff; /* Warna teks sesuai dengan header */
+    }
+
+    .custom-header .title p {
+        margin: 0;
+        font-size: 12px; /* Ukuran font konsisten dengan index.css */
+        font-style: italic;
+        color: #ffffff; /* Warna teks sesuai dengan header */
+    }
+
+    @media (min-width: 600px) {
+        .custom-header img {
+            height: 150px; /* Sesuaikan dengan ukuran logo di index.css */
+        }
+
+        .custom-header .logo-left img {
+            height: 180px; /* Ukuran lebih besar untuk logo kiri di layar besar */
+        }
+
+        .custom-header .title h1 {
+            font-size: 24px; /* Ukuran font konsisten dengan index.css */
+        }
+
+        .custom-header .title p {
+            font-size: 14px; /* Ukuran font konsisten dengan index.css */
+        }
+    }
+</style>
