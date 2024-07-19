@@ -1,3 +1,24 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBKgWd-2POsEJVgixJEPsvfz7hGjHyxSgo",
+  authDomain: "pbcup006.firebaseapp.com",
+  projectId: "pbcup006",
+  storageBucket: "pbcup006.appspot.com",
+  messagingSenderId: "139943219655",
+  appId: "1:139943219655:web:b81a5c1235ee9c5aee09e2",
+  measurementId: "G-84X37DL6C6"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
 document.addEventListener('DOMContentLoaded', () => {
     const matchForm = document.getElementById('match-form');
     const matchSchedule = document.getElementById('match-schedule');
@@ -15,20 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
         "RT23 T1", "RT23 T2", "RT23 T3"
     ];
 
-    const initializeStandings = () => {
+    const initializeStandings = async () => {
         let standings = {};
         teams.forEach(team => {
             standings[team] = { points: 0 };
         });
-        localStorage.setItem('standings', JSON.stringify(standings));
+        await setDoc(doc(db, "standings", "data"), standings);
         return standings;
     };
 
-    const loadStandings = (isAdmin) => {
-        let standings = JSON.parse(localStorage.getItem('standings'));
-        if (!standings) {
-            standings = initializeStandings();
-        }
+    const loadStandings = async (isAdmin) => {
+        const standingsRef = doc(db, "standings", "data");
+        const docSnap = await getDocs(standingsRef);
+        let standings = docSnap.exists() ? docSnap.data() : await initializeStandings();
+
         // Sort standings by points in descending order
         const sortedTeams = Object.keys(standings).sort((a, b) => standings[b].points - standings[a].points);
 
@@ -51,17 +72,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const updateStandings = (team, points) => {
-        const standings = JSON.parse(localStorage.getItem('standings')) || initializeStandings();
+    const updateStandings = async (team, points) => {
+        const standingsRef = doc(db, "standings", "data");
+        const standings = (await getDocs(standingsRef)).data() || await initializeStandings();
         if (standings[team]) {
             standings[team].points += points;
-            localStorage.setItem('standings', JSON.stringify(standings));
+            await setDoc(standingsRef, standings);
             loadStandings(isAdmin());
         }
     };
 
-    const loadMatches = (isAdmin) => {
-        const matches = JSON.parse(localStorage.getItem('matches')) || [];
+    const loadMatches = async (isAdmin) => {
+        const matchesRef = collection(db, "matches");
+        const querySnapshot = await getDocs(matchesRef);
+        let matches = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
         // Sort matches by date in descending order
         matches.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -80,27 +105,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${winner}</td>
                 ${isAdmin ? `
                 <td>
-                    <button onclick="deleteMatch(${index})">Hapus</button>
-                    <button onclick="editMatch(${index})">Edit Skor</button>
-                    <button onclick="setWO(${index}, '${match.teamA}')">Set WO Tim A</button>
-                    <button onclick="setWO(${index}, '${match.teamB}')">Set WO Tim B</button>
-                    <button onclick="resetMatchScore(${index})">Reset Skor</button>
+                    <button onclick="deleteMatch('${match.id}')">Hapus</button>
+                    <button onclick="editMatch('${match.id}')">Edit Skor</button>
+                    <button onclick="setWO('${match.id}', '${match.teamA}')">Set WO Tim A</button>
+                    <button onclick="setWO('${match.id}', '${match.teamB}')">Set WO Tim B</button>
+                    <button onclick="resetMatchScore('${match.id}')">Reset Skor</button>
                 </td>` : ''}
             `;
             matchSchedule.appendChild(row);
         });
     };
 
-    window.deleteMatch = function (index) {
-        const matches = JSON.parse(localStorage.getItem('matches')) || [];
-        matches.splice(index, 1);
-        localStorage.setItem('matches', JSON.stringify(matches));
+    window.deleteMatch = async function (id) {
+        await deleteDoc(doc(db, "matches", id));
         loadMatches(isAdmin());
     };
 
-    window.editMatch = function (index) {
-        const matches = JSON.parse(localStorage.getItem('matches')) || [];
-        const match = matches[index];
+    window.editMatch = async function (id) {
+        const matchRef = doc(db, "matches", id);
+        const matchSnap = await getDocs(matchRef);
+        const match = matchSnap.data();
         const newScoreA = prompt(`Masukkan skor baru untuk ${match.teamA}:`, match.score.teamA);
         const newScoreB = prompt(`Masukkan skor baru untuk ${match.teamB}:`, match.score.teamB);
 
@@ -109,64 +133,67 @@ document.addEventListener('DOMContentLoaded', () => {
             match.score.teamB = parseInt(newScoreB);
             match.winner = match.score.teamA > match.score.teamB ? match.teamA : (match.score.teamB > match.score.teamA ? match.teamB : null);
 
-            localStorage.setItem('matches', JSON.stringify(matches));
+            await setDoc(matchRef, match);
             loadMatches(isAdmin());
         }
     };
 
-    window.setWO = function (index, team) {
-        const matches = JSON.parse(localStorage.getItem('matches')) || [];
-        const match = matches[index];
-        
+    window.setWO = async function (id, team) {
+        const matchRef = doc(db, "matches", id);
+        const matchSnap = await getDocs(matchRef);
+        const match = matchSnap.data();
+
         match.isWO = true;
         match.winner = team;
 
         // Remove automatic update of standings here
-        // updateStandings(match.winner, 1); // Remove this line
+        // await updateStandings(match.winner, 1); // Remove this line
 
-        localStorage.setItem('matches', JSON.stringify(matches));
+        await setDoc(matchRef, match);
         loadMatches(isAdmin());
     };
 
-    window.win = function (team) {
-        updateStandings(team, 3);
+    window.win = async function (team) {
+        await updateStandings(team, 3);
     };
 
-    window.winWO = function (team) {
-        updateStandings(team, 1);
+    window.winWO = async function (team) {
+        await updateStandings(team, 1);
     };
 
-    window.addPoint = function (team) {
-        updateStandings(team, 3);
+    window.addPoint = async function (team) {
+        await updateStandings(team, 3);
     };
 
-    window.subtractPoint = function (team) {
-        updateStandings(team, -1);
+    window.subtractPoint = async function (team) {
+        await updateStandings(team, -1);
     };
 
-    window.resetPoints = function (team) {
-        const standings = JSON.parse(localStorage.getItem('standings')) || initializeStandings();
+    window.resetPoints = async function (team) {
+        const standingsRef = doc(db, "standings", "data");
+        const standings = (await getDocs(standingsRef)).data() || await initializeStandings();
         if (standings[team]) {
             standings[team].points = 0;
-            localStorage.setItem('standings', JSON.stringify(standings));
+            await setDoc(standingsRef, standings);
             loadStandings(isAdmin());
         }
     };
 
-    window.resetMatchScore = function (index) {
-        const matches = JSON.parse(localStorage.getItem('matches')) || [];
-        const match = matches[index];
+    window.resetMatchScore = async function (id) {
+        const matchRef = doc(db, "matches", id);
+        const matchSnap = await getDocs(matchRef);
+        const match = matchSnap.data();
         if (match) {
             match.score.teamA = 0;
             match.score.teamB = 0;
             match.winner = null;
             match.isWO = false;
-            localStorage.setItem('matches', JSON.stringify(matches));
+            await setDoc(matchRef, match);
             loadMatches(isAdmin());
         }
     };
 
-    matchForm.addEventListener('submit', (event) => {
+    matchForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!isAdmin()) {
             alert('Hanya admin yang dapat menambahkan pertandingan!');
@@ -177,9 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const date = document.getElementById('date').value;
         const match = { teamA, teamB, date, score: { teamA: 0, teamB: 0 }, winner: null, isWO: false };
 
-        let matches = JSON.parse(localStorage.getItem('matches')) || [];
-        matches.push(match);
-        localStorage.setItem('matches', JSON.stringify(matches));
+        await addDoc(collection(db, "matches"), match);
 
         loadMatches(isAdmin());
         matchForm.reset();
