@@ -3,118 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Match Recording</title>
+    <title>PB CUP RW006</title>
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="script.js" defer></script>
 </head>
 <body>
-    <div id="admin-login" class="admin-login">
-        <h2>Admin Login</h2>
+    <header class="custom-header">
+        <div class="logo-left">
+            <img src="pbnavi.png" alt="Logo Kiri">
+        </div>
+        <div class="title">
+            <h1>PB CUP RW006</h1>
+            <p>Perumahan Griya Artha Rancabango</p>
+        </div>
+        <div class="logo-right">
+            <img src="grab006.png" alt="Logo Kanan">
+        </div>
+    </header>
+
+    <section>
+        <h2>Jadwal Pertandingan</h2>
+        <form id="match-form">
+            <label for="teamA">Tim A:</label>
+            <select id="teamA" required>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+
+            <label for="teamB">Tim B:</label>
+            <select id="teamB" required>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+
+            <label for="date">Tanggal:</label>
+            <input type="date" id="date" required>
+
+            <button type="submit">Tambahkan Pertandingan</button>
+        </form>
+
+        <table id="match-schedule">
+            <thead>
+                <tr>
+                    <th>Tim A</th>
+                    <th>Tim B</th>
+                    <th>Tanggal</th>
+                    <th>Skor</th>
+                    <th>Pemenang</th>
+                    <th class="admin-only">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Matches will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Klasemen Tim</h2>
+        <table id="team-standings">
+            <thead>
+                <tr>
+                    <th>Tim</th>
+                    <th>Poin</th>
+                    <th class="admin-only">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Standings will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+    <div id="admin-login">
+        <h2>Login Admin</h2>
         <form id="login-form">
             <label for="admin-password">Password:</label>
             <input type="password" id="admin-password" required>
             <button type="submit">Login</button>
         </form>
     </div>
-    <button id="logout-button" style="display:none;">Logout</button>
 
-    <div class="admin-only" style="display:none;">
-        <h2>Tambah Jadwal Pertandingan</h2>
-        <form id="match-form">
-            <label for="teamA">Tim A:</label>
-            <select id="teamA">
-                <option value="RT19 T1">RT19 T1</option>
-                <option value="RT19 T2">RT19 T2</option>
-                <option value="RT19 T3">RT19 T3</option>
-                <option value="RT20 T1">RT20 T1</option>
-                <option value="RT20 T2">RT20 T2</option>
-                <option value="RT20 T3">RT20 T3</option>
-                <option value="RT21 T1">RT21 T1</option>
-                <option value="RT21 T2">RT21 T2</option>
-                <option value="RT21 T3">RT21 T3</option>
-                <option value="RT22 T1">RT22 T1</option>
-                <option value="RT22 T2">RT22 T2</option>
-                <option value="RT22 T3">RT22 T3</option>
-                <option value="RT23 T1">RT23 T1</option>
-                <option value="RT23 T2">RT23 T2</option>
-                <option value="RT23 T3">RT23 T3</option>
-            </select>
-            <label for="teamB">Tim B:</label>
-            <select id="teamB">
-                <option value="RT19 T1">RT19 T1</option>
-                <option value="RT19 T2">RT19 T2</option>
-                <option value="RT19 T3">RT19 T3</option>
-                <option value="RT20 T1">RT20 T1</option>
-                <option value="RT20 T2">RT20 T2</option>
-                <option value="RT20 T3">RT20 T3</option>
-                <option value="RT21 T1">RT21 T1</option>
-                <option value="RT21 T2">RT21 T2</option>
-                <option value="RT21 T3">RT21 T3</option>
-                <option value="RT22 T1">RT22 T1</option>
-                <option value="RT22 T2">RT22 T2</option>
-                <option value="RT22 T3">RT22 T3</option>
-                <option value="RT23 T1">RT23 T1</option>
-                <option value="RT23 T2">RT23 T2</option>
-                <option value="RT23 T3">RT23 T3</option>
-            </select>
-            <label for="date">Tanggal:</label>
-            <input type="date" id="date" required>
-            <button type="submit">Tambahkan Jadwal</button>
-        </form>
-    </div>
-
-    <h2>Jadwal Pertandingan</h2>
-    <table id="match-schedule">
-        <thead>
-            <tr>
-                <th>Tim A</th>
-                <th>Tim B</th>
-                <th>Tanggal</th>
-                <th>Skor</th>
-                <th>Pemenang</th>
-                <th class="admin-only" style="display:none;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically added here -->
-        </tbody>
-    </table>
-
-    <h2>Klasemen Tim</h2>
-    <table id="team-standings">
-        <thead>
-            <tr>
-                <th>Tim</th>
-                <th>Poin</th>
-                <th class="admin-only" style="display:none;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically added here -->
-        </tbody>
-    </table>
-
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <!-- Your web app's Firebase configuration -->
-    <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKgWd-2POsEJVgixJEPsvfz7hGjHyxSgo",
-            authDomain: "pbcup006.firebaseapp.com",
-            projectId: "pbcup006",
-            storageBucket: "pbcup006.appspot.com",
-            messagingSenderId: "139943219655",
-            appId: "1:139943219655:web:b81a5c1235ee9c5aee09e2",
-            measurementId: "G-84X37DL6C6"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-    </script>
-    
-    <!-- Your custom script -->
-    <script src="script.js"></script>
+    <button id="logout-button" style="display: none;">Logout</button>
 </body>
 </html>
