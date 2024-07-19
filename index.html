@@ -1,298 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Match Recorder</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <style>
-        .admin-only {
-            display: none;
-        }
-        #logout-button {
-            display: none;
-        }
-    </style>
+    <title>Jadwal Pertandingan Badminton</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Badminton Match Recorder</h1>
-
-    <div id="admin-login">
-        <h2>Admin Login</h2>
-        <form id="login-form">
-            <input type="password" id="admin-password" placeholder="Enter admin password" required>
-            <button type="submit">Login</button>
-        </form>
-    </div>
-
-    <button id="logout-button">Logout</button>
-
-    <div class="admin-only">
-        <h2>Tambah Pertandingan</h2>
-        <form id="match-form">
-            <label for="teamA">Tim A:</label>
-            <select id="teamA" required>
-                <option value="">Pilih Tim A</option>
-                <option value="RT19 T1">RT19 T1</option>
-                <option value="RT19 T2">RT19 T2</option>
-                <option value="RT19 T3">RT19 T3</option>
-                <option value="RT20 T1">RT20 T1</option>
-                <option value="RT20 T2">RT20 T2</option>
-                <option value="RT20 T3">RT20 T3</option>
-                <option value="RT21 T1">RT21 T1</option>
-                <option value="RT21 T2">RT21 T2</option>
-                <option value="RT21 T3">RT21 T3</option>
-                <option value="RT22 T1">RT22 T1</option>
-                <option value="RT22 T2">RT22 T2</option>
-                <option value="RT22 T3">RT22 T3</option>
-                <option value="RT23 T1">RT23 T1</option>
-                <option value="RT23 T2">RT23 T2</option>
-                <option value="RT23 T3">RT23 T3</option>
-            </select>
-            <label for="teamB">Tim B:</label>
-            <select id="teamB" required>
-                <option value="">Pilih Tim B</option>
-                <option value="RT19 T1">RT19 T1</option>
-                <option value="RT19 T2">RT19 T2</option>
-                <option value="RT19 T3">RT19 T3</option>
-                <option value="RT20 T1">RT20 T1</option>
-                <option value="RT20 T2">RT20 T2</option>
-                <option value="RT20 T3">RT20 T3</option>
-                <option value="RT21 T1">RT21 T1</option>
-                <option value="RT21 T2">RT21 T2</option>
-                <option value="RT21 T3">RT21 T3</option>
-                <option value="RT22 T1">RT22 T1</option>
-                <option value="RT22 T2">RT22 T2</option>
-                <option value="RT22 T3">RT22 T3</option>
-                <option value="RT23 T1">RT23 T1</option>
-                <option value="RT23 T2">RT23 T2</option>
-                <option value="RT23 T3">RT23 T3</option>
-            </select>
-            <label for="date">Tanggal:</label>
-            <input type="date" id="date" required>
-            <button type="submit">Tambah Pertandingan</button>
-        </form>
-    </div>
-
-    <h2>Jadwal Pertandingan</h2>
-    <table border="1">
+    <div id="header-container"></div>
+    <h1>Jadwal Pertandingan Badminton dan Point</h1>
+    <table>
         <thead>
             <tr>
                 <th>Tim A</th>
                 <th>Tim B</th>
                 <th>Tanggal</th>
                 <th>Skor</th>
-                <th>Pemenang</th>
+                <th>Menang</th>
                 <th class="admin-only">Aksi</th>
             </tr>
         </thead>
         <tbody id="match-schedule">
-            <!-- Jadwal pertandingan akan dimuat di sini -->
+            <!-- Jadwal pertandingan akan diisi di sini -->
         </tbody>
     </table>
 
-    <h2>Klasemen Tim</h2>
-    <table border="1">
+    <h2>Tabel Poin</h2>
+    <table id="point-table">
         <thead>
             <tr>
                 <th>Tim</th>
-                <th>Poin</th>
+                <th>Point</th>
                 <th class="admin-only">Aksi</th>
             </tr>
         </thead>
         <tbody id="team-standings">
-            <!-- Klasemen tim akan dimuat di sini -->
+            <!-- Tabel point dan status akan diisi di sini -->
         </tbody>
     </table>
 
-    <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKgWd-2POsEJVgixJEPsvfz7hGjHyxSgo",
-            authDomain: "pbcup006.firebaseapp.com",
-            projectId: "pbcup006",
-            storageBucket: "pbcup006.appspot.com",
-            messagingSenderId: "139943219655",
-            appId: "1:139943219655:web:b81a5c1235ee9c5aee09e2",
-            measurementId: "G-84X37DL6C6"
-        };
+    <form id="match-form" class="admin-only">
+        <label for="teamA">Tim A:</label>
+        <select id="teamA" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="teamB">Tim B:</label>
+        <select id="teamB" required>
+            <option value="RT19 T1">RT19 T1</option>
+            <option value="RT19 T2">RT19 T2</option>
+            <option value="RT19 T3">RT19 T3</option>
+            <option value="RT20 T1">RT20 T1</option>
+            <option value="RT20 T2">RT20 T2</option>
+            <option value="RT20 T3">RT20 T3</option>
+            <option value="RT21 T1">RT21 T1</option>
+            <option value="RT21 T2">RT21 T2</option>
+            <option value="RT21 T3">RT21 T3</option>
+            <option value="RT22 T1">RT22 T1</option>
+            <option value="RT22 T2">RT22 T2</option>
+            <option value="RT22 T3">RT22 T3</option>
+            <option value="RT23 T1">RT23 T1</option>
+            <option value="RT23 T2">RT23 T2</option>
+            <option value="RT23 T3">RT23 T3</option>
+        </select>
+        <label for="date">Tanggal:</label>
+        <input type="date" id="date" required>
+        <button type="submit">Tambah Pertandingan</button>
+    </form>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+    <div id="admin-login">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    
+    <button id="logout-button" style="display: none;">Logout</button>
+    
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
+                });
+        });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const matchForm = document.getElementById('match-form');
-            const matchSchedule = document.getElementById('match-schedule');
-            const teamStandings = document.getElementById('team-standings');
-            const loginForm = document.getElementById('login-form');
-            const adminLoginDiv = document.getElementById('admin-login');
-            const logoutButton = document.getElementById('logout-button');
-            const adminOnlyElements = document.querySelectorAll('.admin-only');
-
-            const teams = [
-                "RT19 T1", "RT19 T2", "RT19 T3",
-                "RT20 T1", "RT20 T2", "RT20 T3",
-                "RT21 T1", "RT21 T2", "RT21 T3",
-                "RT22 T1", "RT22 T2", "RT22 T3",
-                "RT23 T1", "RT23 T2", "RT23 T3"
-            ];
-
-            const db = firebase.database();
-
-            const initializeStandings = () => {
-                let standings = {};
-                teams.forEach(team => {
-                    standings[team] = { points: 0 };
-                });
-                db.ref('standings').set(standings);
-                return standings;
-            };
-
-            const loadStandings = (isAdmin) => {
-                db.ref('standings').once('value', (snapshot) => {
-                    const standings = snapshot.val();
-                    const sortedTeams = Object.keys(standings).sort((a, b) => standings[b].points - standings[a].points);
-
-                    teamStandings.innerHTML = '';
-                    sortedTeams.forEach(team => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${team}</td>
-                            <td>${standings[team]?.points || 0}</td>
-                            ${isAdmin ? `
-                            <td>
-                                <button onclick="win('${team}')">Win</button>
-                                <button onclick="winWO('${team}')">Win WO</button>
-                                <button onclick="addPoint('${team}')">+</button>
-                                <button onclick="subtractPoint('${team}')">-</button>
-                                <button onclick="resetPoints('${team}')">Reset Skor</button>
-                            </td>` : ''}
-                        `;
-                        teamStandings.appendChild(row);
-                    });
-                });
-            };
-
-            const updateStandings = (team, points) => {
-                db.ref('standings').once('value', (snapshot) => {
-                    const standings = snapshot.val();
-                    if (standings[team]) {
-                        standings[team].points += points;
-                        db.ref('standings').set(standings);
-                        loadStandings(isAdmin());
-                    }
-                });
-            };
-
-            const loadMatches = (isAdmin) => {
-                db.ref('matches').once('value', (snapshot) => {
-                    const matches = snapshot.val() || [];
-                    matches.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                    matchSchedule.innerHTML = '';
-                    matches.forEach((match, index) => {
-                        const scoreA = match.score?.teamA || 0;
-                        const scoreB = match.score?.teamB || 0;
-                        const winner = match.winner ? match.winner : 'N/A';
-
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${match.teamA}</td>
-                            <td>${match.teamB}</td>
-                            <td>${match.date}</td>
-                            <td>${scoreA} - ${scoreB}</td>
-                            <td>${winner}</td>
-                            ${isAdmin ? `
-                            <td>
-                                <button onclick="setScore(${index}, 'teamA')">Set Skor A</button>
-                                <button onclick="setScore(${index}, 'teamB')">Set Skor B</button>
-                                <button onclick="setWinner(${index})">Set Pemenang</button>
-                                <button onclick="setWO(${index}, 'teamA')">Set WO A</button>
-                                <button onclick="setWO(${index}, 'teamB')">Set WO B</button>
-                                <button onclick="deleteMatch(${index})">Hapus</button>
-                            </td>` : ''}
-                        `;
-                        matchSchedule.appendChild(row);
-                    });
-                });
-            };
-
-            matchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const teamA = document.getElementById('teamA').value;
-                const teamB = document.getElementById('teamB').value;
-                const date = document.getElementById('date').value;
-
-                if (teamA === teamB) {
-                    alert('Tim A dan Tim B tidak boleh sama!');
-                    return;
-                }
-
-                const newMatch = {
-                    teamA,
-                    teamB,
-                    date,
-                    score: {
-                        teamA: 0,
-                        teamB: 0
-                    },
-                    winner: null
-                };
-
-                db.ref('matches').once('value', (snapshot) => {
-                    const matches = snapshot.val() || [];
-                    matches.push(newMatch);
-                    db.ref('matches').set(matches);
-                    loadMatches(isAdmin());
-                });
-
-                matchForm.reset();
-            });
-
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const password = document.getElementById('admin-password').value;
-                if (password === 'admin123') {
-                    localStorage.setItem('isAdmin', 'true');
-                    adminLoginDiv.style.display = 'none';
-                    logoutButton.style.display = 'block';
-                    adminOnlyElements.forEach(el => el.style.display = 'block');
-                    loadStandings(true);
-                    loadMatches(true);
-                } else {
-                    alert('Password salah!');
-                }
-            });
-
-            logoutButton.addEventListener('click', () => {
-                localStorage.removeItem('isAdmin');
-                location.reload();
-            });
-
-            const isAdmin = () => localStorage.getItem('isAdmin') === 'true';
-
-            if (isAdmin()) {
-                adminLoginDiv.style.display = 'none';
-                logoutButton.style.display = 'block';
-                adminOnlyElements.forEach(el => el.style.display = 'block');
-            } else {
-                adminOnlyElements.forEach(el => el.style.display = 'none');
-            }
-
-            loadStandings(isAdmin());
-            loadMatches(isAdmin());
-
-            // Update points functions
-            window.win = (team) => updateStandings(team, 3);
-            window.winWO = (team) => updateStandings(team, 1);
-            window.addPoint = (team) => updateStandings(team, 1);
-            window.subtractPoint = (team) => updateStandings(team, -1);
-            window.resetPoints = (team) => updateStandings(team, 0);
-
-            // Match actions functions
-            window.setScore = (index, team) => {
-                const score = prompt(`Masukkan skor untuk ${team}`);
-                if (score !== null) {
-                    db.ref('matches').once('value', (snapshot)
+</body>
+</html>
